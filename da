@@ -1,0 +1,49 @@
+local UserInputService = game:GetService("UserInputService")
+local plr = game.Players.LocalPlayer
+local char = plr.Character or plr.CharacterAdded:Wait()
+local hum = char:WaitForChild("Humanoid")
+local hrp = char:WaitForChild("HumanoidRootPart")
+local cam = workspace.CurrentCamera
+
+local isHiding = false
+local lastcf = nil
+
+-- 카메라 및 위치 초기화
+local function startHiding()
+	if isHiding then return end
+	isHiding = true
+	lastcf = hrp.CFrame
+	cam.CameraType = Enum.CameraType.Scriptable
+	cam.CFrame = cam.CFrame
+
+	while isHiding do
+		hrp.CFrame = CFrame.new(0, -300, 0)
+		hrp.AssemblyLinearVelocity = Vector3.zero
+		hrp.AssemblyAngularVelocity = Vector3.zero
+		task.wait(0.03)
+	end
+end
+
+local function stopHiding()
+	if not isHiding then return end
+	isHiding = false
+	hrp.CFrame = lastcf
+	cam.CameraType = Enum.CameraType.Custom
+	cam.CameraSubject = hum
+end
+
+-- 키 눌렀을 때 숨기기 시작
+UserInputService.InputBegan:Connect(function(input, gpe)
+	if gpe then return end
+	if input.KeyCode == Enum.E.Space then
+		startHiding()
+	end
+end)
+
+-- 키 뗐을 때 원래대로 복귀
+UserInputService.InputEnded:Connect(function(input, gpe)
+	if gpe then return end
+	if input.KeyCode == Enum.KeyCode.E then
+		stopHiding()
+	end
+end)
