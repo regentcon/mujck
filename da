@@ -1,36 +1,46 @@
 local UserInputService = game:GetService("UserInputService")
-local plr = game.Players.LocalPlayer
+local Players = game:GetService("Players")
+local plr = Players.LocalPlayer
 local char = plr.Character or plr.CharacterAdded:Wait()
 local hum = char:WaitForChild("Humanoid")
 local hrp = char:WaitForChild("HumanoidRootPart")
-local cam = workspace.CurrentCamera
 
 local isHiding = false
-local lastcf = nil
+local originalCollision = {}
+local function setCollision(state)
+	for _, part in ipairs(char:GetDescendants()) do
+		if part:IsA("BasePart") and part.CanCollide ~= state then
+			if state == false then
+				originalCollision[part] = part.CanCollide
+			end
+			part.CanCollide = state
+		end
+	end
+end
+
+local function setTransparency(state)
+	for _, part in ipairs(char:GetDescendants()) do
+		if part:IsA("BasePart") then
+			part.Transparency = state and 1 or 0
+		end
+	end
+end
 
 local function startHiding()
 	if isHiding then return end
 	isHiding = true
-	lastcf = hrp.CFrame
-	cam.CameraType = Enum.CameraType.Scriptable
-	cam.CFrame = cam.CFrame
-
-	while isHiding do
-		hrp.CFrame = CFrame.new(0, -300, 0)
-		hrp.AssemblyLinearVelocity = Vector3.zero
-		hrp.AssemblyAngularVelocity = Vector3.zero
-		task.wait(0.03)
-	end
+	setCollision(false) -- 무적처럼 충돌 제거
+	setTransparency(true) -- 캐릭터 숨김 (시각적 효과)
+	hum:SetStateEnabled(Enum.HumanoidStateType.Dead, false) -- 사망 방지
 end
 
 local function stopHiding()
 	if not isHiding then return end
 	isHiding = false
-	hrp.CFrame = lastcf
-	cam.CameraType = Enum.CameraType.Custom
-	cam.CameraSubject = hum
+	setCollision(true)
+	setTransparency(false)
+	hum:SetStateEnabled(Enum.HumanoidStateType.Dead, true)
 end
-
 
 UserInputService.InputBegan:Connect(function(input, gpe)
 	if gpe then return end
@@ -38,7 +48,6 @@ UserInputService.InputBegan:Connect(function(input, gpe)
 		startHiding()
 	end
 end)
-
 
 UserInputService.InputEnded:Connect(function(input, gpe)
 	if gpe then return end
