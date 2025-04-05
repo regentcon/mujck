@@ -32,7 +32,7 @@ end
 
 UserInputService.InputBegan:Connect(function(input, gpe)
 	if gpe then return end
-	if input.KeyCode == Enum.E.Space then
+	if input.KeyCode == Enum.KeyCode.E then
 		startHiding()
 	end
 end)
