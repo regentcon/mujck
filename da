@@ -8,10 +8,23 @@ local isHiding = false
 local lastcf = nil
 
 
+local function onDied()
+	isHiding = false
+	lastcf = nil
+	cam.CameraType = Enum.CameraType.Custom
+	if hum then
+		cam.CameraSubject = hum
+	end
+end
+
+
 local function onCharacterAdded(character)
 	char = character
 	hum = char:WaitForChild("Humanoid")
 	hrp = char:WaitForChild("HumanoidRootPart")
+
+	hum.Died:Connect(onDied)
+
 	cam.CameraSubject = hum
 	cam.CameraType = Enum.CameraType.Custom
 end
@@ -22,12 +35,13 @@ if plr.Character then
 end
 plr.CharacterAdded:Connect(onCharacterAdded)
 
+
 local function startHiding()
 	if isHiding or not hrp then return end
 	isHiding = true
-	lastcf = hrp.CFrame
+	lastcf = hrp.CFrame or CFrame.new(0, 5, 0)
 	cam.CameraType = Enum.CameraType.Scriptable
-	cam.CFrame = cam.CFrame
+	cam.CFrame = cam.CFrame -- 현재 카메라 고정
 
 	while isHiding do
 		if not hrp then break end
@@ -38,12 +52,17 @@ local function startHiding()
 	end
 end
 
+
 local function stopHiding()
 	if not isHiding or not hrp then return end
 	isHiding = false
-	hrp.CFrame = lastcf
+	if lastcf then
+		hrp.CFrame = lastcf
+	end
 	cam.CameraType = Enum.CameraType.Custom
-	cam.CameraSubject = hum
+	if hum then
+		cam.CameraSubject = hum
+	end
 end
 
 
