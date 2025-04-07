@@ -8,6 +8,7 @@ local cam = workspace.CurrentCamera
 local hum, hrp, char
 local isHiding = false
 local lastcf = nil
+local savedCamCF = nil
 local hidingLoop = nil
 
 local function onCharacterAdded(character)
@@ -37,14 +38,9 @@ local function startHiding()
 	if isHiding or not hrp then return end
 	isHiding = true
 	lastcf = hrp.CFrame
+	savedCamCF = cam.CFrame
 	cam.CameraType = Enum.CameraType.Scriptable
-
-	local head = char:FindFirstChild("Head")
-	if head then
-		cam.CFrame = CFrame.new(head.Position + head.CFrame.LookVector * -6 + Vector3.new(0, 2, 0), head.Position)
-	else
-		cam.CFrame = lastcf
-	end
+	cam.CFrame = savedCamCF
 
 	hidingLoop = RunService.Heartbeat:Connect(function()
 		if not hrp or not isHiding then return end
