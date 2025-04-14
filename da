@@ -11,6 +11,7 @@ local lastcf = nil
 local savedCamCF = nil
 local hidingLoop = nil
 
+-- 캐릭터 세팅
 local function onCharacterAdded(character)
 	char = character
 	hum = character:WaitForChild("Humanoid")
@@ -34,6 +35,7 @@ if plr.Character then
 end
 plr.CharacterAdded:Connect(onCharacterAdded)
 
+-- 숨기기 시작
 local function startHiding()
 	if isHiding or not hrp then return end
 	isHiding = true
@@ -50,6 +52,7 @@ local function startHiding()
 	end)
 end
 
+-- 숨기기 멈춤
 local function stopHiding()
 	if not isHiding or not hrp then return end
 	isHiding = false
@@ -64,6 +67,7 @@ local function stopHiding()
 	cam.CameraSubject = hum
 end
 
+-- 키보드 입력 감지 (E키)
 UserInputService.InputBegan:Connect(function(input, gpe)
 	if gpe then return end
 	if input.KeyCode == Enum.KeyCode.E then
@@ -77,3 +81,33 @@ UserInputService.InputEnded:Connect(function(input, gpe)
 		stopHiding()
 	end
 end)
+
+-- 모바일/PC용 버튼 생성
+local function createMobileButton()
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Name = "HideButtonGUI"
+	screenGui.ResetOnSpawn = false
+	screenGui.Parent = plr:WaitForChild("PlayerGui")
+
+	local button = Instance.new("TextButton")
+	button.Size = UDim2.new(0, 120, 0, 45)
+	button.Position = UDim2.new(1, -130, 1, -70)
+	button.AnchorPoint = Vector2.new(0, 0)
+	button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+	button.TextColor3 = Color3.new(1, 1, 1)
+	button.Font = Enum.Font.GothamBold
+	button.TextSize = 16
+	button.Text = "숨기기 토글"
+	button.Parent = screenGui
+
+	button.MouseButton1Click:Connect(function()
+		if isHiding then
+			stopHiding()
+		else
+			startHiding()
+		end
+	end)
+end
+
+-- 버튼 무조건 생성 (모든 디바이스)
+createMobileButton()
